@@ -1,4 +1,5 @@
 @echo off
+
 title Batch RPG
 
 :startmenu
@@ -12,18 +13,21 @@ echo 1. Start new game
 echo 2. Credits
 echo 3. Quit
 echo.
-set /p input=C:\
-if "%input%" == "1" goto newgame
-if "%input%" == "2" goto credits
-if "%input%" == "3" exit
-goto startmenu
+choice /c 123 /m "Choose an option:"
+
+if errorlevel 3 goto exit
+if errorlevel 2 goto credits
+if errorlevel 1 goto newgame
+
+:exit
+exit
 
 :credits
 cls
 echo.
-echo This game was made by StarterNoob (also known as nupsu1234).
+echo This game was made by Nupsu.
 echo.
-echo Started the project sometime in March, 2018.
+echo Started the project sometime in March 2018. Picked it back up December 2024.
 echo.
 pause
 goto startmenu
@@ -47,12 +51,10 @@ set exp=0
 set fleenum=0
 set ring=0
 set expcap=100
-goto game
-
-:game
-set expuntil=%expcap%
-set /a expuntil-=%exp%
-set input=0
+set goldgain=0
+set expgain=0
+set stun=0
+set enemyspellnum=0
 set wolfhp=65
 set wolfdmg=3
 set bandithp=100
@@ -69,8 +71,31 @@ set cavedragonhp=300
 set cavedragondmg=65
 set obeliskhp=500
 set obeliskdmg=0
-set azerothhp=1000
-set azerothdmg=75
+set abaddonhp=1000
+set abaddondmg=75
+goto game
+
+:game
+set expuntil=%expcap%
+set /a expuntil-=%exp%
+set wolfhp=65
+set wolfdmg=3
+set bandithp=100
+set banditdmg=10
+set goblinhp=120
+set goblindmg=16
+set skeletonhp=150
+set skeletondmg=20
+set giantlizardhp=200
+set giantlizarddmg=35
+set trollhp=250
+set trolldmg=50
+set cavedragonhp=300
+set cavedragondmg=65
+set obeliskhp=500
+set obeliskdmg=0
+set abaddonhp=1000
+set abaddondmg=75
 set goldgain=0
 set expgain=0
 set playerdmgincrease=0
@@ -86,21 +111,20 @@ echo Welcome to the actual game!
 echo.
 echo What's your next move?
 echo.
-echo 1. Fight stuff
+echo 1. Fight
 echo 2. Shop
 echo 3. Rest
-echo 4. Check my stats
+echo 4. My stats
 echo 5. Equipment
-echo 6. Go back to the start menu
-echo.
-set /a fightnum=%random% %%8 +1
-set /p input=C:\
-if "%input%" == "1" goto prefight
-if "%input%" == "2" goto shop
-if "%input%" == "3" goto rest
-if "%input%" == "4" goto mystats
-if "%input%" == "5" goto equipment
-if "%input%" == "6" goto startmenu
+echo 6. Exit
+choice /c 123456 /m "Choose an option:"
+if errorlevel 6 goto exit
+if errorlevel 5 goto equipment
+if errorlevel 4 goto mystats
+if errorlevel 3 goto rest
+if errorlevel 2 goto shop
+if errorlevel 1 goto prefight
+pause
 goto game
 
 :equipment
@@ -109,7 +133,7 @@ if %shortsword% geq 1 echo Shortsword - Increases attack by 3
 if %ringofhealth% geq 1 echo Ring of health x%ringofhealth% - Increases maximum health by 10
 if %ringofmana% geq 1 echo Ring of mana x%ringofmana% - Increases maximum mana by 10
 if %spellstun% geq 1 echo Stun - 50 mana - Enemies who are stunned will deal no damage
-if %greaterheal% geq 1 echo Greater heal - 75 mana - Heal self for 50 HP
+if %greaterheal% geq 1 echo Greater heal - 50 mana - Heal self for 50 HP
 if %magicbarrier% geq 1 echo Magic barrier - 40 mana - Negate damage for 1 turn (doesn't take a turn to cast, stacks)
 pause
 goto game
@@ -136,7 +160,6 @@ pause
 goto game
 
 :shop
-set input=0
 cls
 echo What do you want to buy? Each item can only be bought once, except for rings. You can buy 10 rings in total.
 echo.
@@ -151,22 +174,21 @@ echo 6. Spellbook (magic barrier) - Gives you a spell that negates damage taken 
 echo.
 echo 7. Sell
 echo 8. Leave
-echo.
-set /p input=C:\
-if "%input%" == "1" goto shortsword
-if "%input%" == "2" goto ringofhealth
-if "%input%" == "3" goto ringofmana
-if "%input%" == "4" goto spellstun
-if "%input%" == "5" goto spellgreaterheal
-if "%input%" == "6" goto spellmagicbarrier
-if "%input%" == "7" goto sell
-if "%input%" == "8" goto game
+choice /c 12345678 /m "Choose an option:"
+if errorlevel 8 goto game
+if errorlevel 7 goto sell
+if errorlevel 6 goto spellmagicbarrier
+if errorlevel 5 goto spellgreaterheal
+if errorlevel 4 goto spellstun
+if errorlevel 3 goto ringofmana
+if errorlevel 2 goto ringofhealth
+if errorlevel 1 goto shortsword
+pause
 goto shop
 
 :sell
-set input=0
 cls
-echo What do you want to sell? You only get half of the items original value.
+echo What do you want to sell? You only get half of the item's original value.
 echo.
 echo 1. Leave
 echo.
@@ -175,16 +197,16 @@ if %ringofhealth% geq 1 echo 3. Ring of health - 15 gold
 if %ringofmana% geq 1 echo 4. Ring of mana - 15 gold
 if %spellstun% geq 1 echo 5. Spellbook (stun) - 100 gold
 if %greaterheal% geq 1 echo 6. Spellbook (greater heal) - 150 gold
-if %magicbarrier% geq 1 ecgo 7. Spellbook (magic barrier) - 200 gold
+if %magicbarrier% geq 1 echo 7. Spellbook (magic barrier) - 200 gold
 echo.
-set /p input=C:\
-if "%input%" == "1" goto shop
-if "%input%" == "2" goto sellshortsword
-if "%input%" == "3" goto sellringofhealth
-if "%input%" == "4" goto sellringofmana
-if "%input%" == "5" goto sellstun
-if "%input%" == "6" goto sellgreaterheal
-if "%input%" == "7" goto sellmagicbarrier
+choice /c 1234567 /m "Choose an option:"
+if errorlevel 7 goto sellmagicbarrier
+if errorlevel 6 goto sellgreaterheal
+if errorlevel 5 goto sellstun
+if errorlevel 4 goto sellringofmana
+if errorlevel 3 goto sellringofhealth
+if errorlevel 2 goto sellshortsword
+if errorlevel 1 goto shop
 goto sell
 
 :selling
@@ -226,14 +248,14 @@ set /a gold+=100
 goto selling
 
 :sellgreaterheal
-if %spellgreaterheal% lss 1 goto sell
-set spellstun=0
+if %greaterheal% lss 1 goto sell
+set greaterheal=0
 set /a gold+=150
 goto selling
 
 :sellmagicbarrier
 if %magicbarrier% lss 1 goto sell
-set spellmagicbarrier=0
+set magicbarrier=0
 set /a gold+=200
 goto selling
 
@@ -281,7 +303,7 @@ goto purchase
 
 :spellmagicbarrier
 if %magicbarrier% geq 1 goto alreadyhave
-if %gold% lss 150 goto notenoughgold
+if %gold% lss 200 goto notenoughgold
 set /a gold-=200
 set magicbarrier=1
 goto purchase
@@ -347,6 +369,7 @@ cls
 echo Roll the dice! This depends on what enemy you will be fighting.
 echo.
 pause
+set /a fightnum=%random% %%8 +1
 cls
 echo You rolled a %fightnum%! What will it be?
 echo.
@@ -362,7 +385,6 @@ if "%fightnum%" == "8" goto fight8pre
 goto prefight
 
 :fight1pre
-set input=0
 cls
 echo You see a wolf in the distance.
 echo.
@@ -372,10 +394,10 @@ echo 1. Fight
 echo 2. Check enemy stats
 echo 3. Sneak away
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight1
-if "%input%" == "2" goto fight1stats
-if "%input%" == "3" goto game
+choice /c 123 /m "Choose an option:"
+if errorlevel 3 goto game
+if errorlevel 2 goto fight1stats
+if errorlevel 1 goto fight1
 goto fight1pre
 
 :fight1stats
@@ -392,9 +414,11 @@ pause
 goto fight1pre
 
 :fight1
-if %stun% geq 1 set wolfdmg=0
-if %stun% lss 1 set wolfdmg=3
-set input=0
+if %stun% geq 1 (
+	set wolfdmg=0
+) else (
+	set wolfdmg=3
+)
 cls
 echo You are fighting a wolf.
 echo.
@@ -419,30 +443,30 @@ echo 2. Spells
 echo 3. Wait
 echo 4. Flee (25% chance)
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight1attack
-if "%input%" == "2" goto spells1
-if "%input%" == "3" goto wait1
-if "%input%" == "4" goto flee1
+choice /c 1234 /m "Choose an option:"
+
+if errorlevel 4 goto flee1
+if errorlevel 3 goto wait1
+if errorlevel 2 goto spells1
+if errorlevel 1 goto fight1attack
 goto fight1
 
 :spells1
-set input=0
 cls
 echo Spells - You have %playermana% mana.
 echo.
-echo 1. Leave
 if %lesserheal% geq 1 echo 2. Lesser heal - 25 mana - Restore 20 HP
 if %spellstun% geq 1 echo 3. Stun - 50 mana - Enemies who are stunned will deal no damage
 if %greaterheal% geq 1 echo 4. Greater heal - 50 mana - Restore 50 HP
 if %magicbarrier% geq 1 echo 5. Magic barrier - 40 mana - Negate all damage for 1 turn, doesn't take a turn to cast
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight1
-if "%input%" == "2" goto lesserheal1
-if "%input%" == "3" goto stun1
-if "%input%" == "4" goto greaterheal1
-if "%input%" == "5" goto magicbarrier1
+choice /c 12345 /m "Choose an option:"
+
+if errorlevel 5 goto magicbarrier1
+if errorlevel 4 goto greaterheal1
+if errorlevel 3 goto stun1
+if errorlevel 2 goto lesserheal1
+if errorlevel 1 goto fight1
 goto spells1
 
 :lesserheal1
@@ -456,7 +480,7 @@ goto spells1
 if %playermana% lss 50 goto notenoughmana1
 if %playerhp% geq %playerhpcap% goto fullhp1
 set /a playermana-=50
-set /aplayerhp+=50
+set /a playerhp+=50
 goto spells1
 
 :fullhp1
@@ -474,7 +498,7 @@ set /a stun+=%random% %%3 +2
 goto fight1
 
 :magicbarrier1
-if %spellmagicbarrier% lss 1 goto spells1
+if %magicbarrier% lss 1 goto spells1
 if %playermana% lss 40 goto notenoughmana1
 set /a playermana-=40
 set /a magicbarrieractive+=1
@@ -510,32 +534,32 @@ echo.
 pause
 goto wait1
 
-
 :wait1
 set /a playerhp-=%wolfdmg%
 if %playerhp% lss 1 goto defeat
 goto fight1
 
 :fight1attack
-set enemyspellnum=0
-set /a enemyspellnum+= %random% %%4 +1
-if %stun% geq 1 set /a stun-=1
-if "%enemyspellnum%" == "2" goto enemyspell1
+if %magicbarrieractive% geq 1 goto magicbarrieractive1
 set /a playerhp-=%wolfdmg%
-if magicbarrieractive geq 1 goto magicbarrieractive1
 set /a wolfhp-=%playerdmg%
-if %wolfhp% lss 1 goto victory1
-if %playerhp% lss 1 goto defeat
 goto fight1
 
 :magicbarrieractive1
-if magicbarrieractive geq 1 set /a magicbarrieractive-=1
+set /a magicbarrieractive-=1
+set /a wolfhp-=%playerdmg%
+goto fight1
+) else (
+	set /a playerhp-=%wolfdmg%
 if %wolfhp% lss 1 goto victory1
+if %playerhp% lss 1 goto defeat
+goto fight1
+if %playerhp% lss 1 goto defeat
 goto fight1
 
 :enemyspell1
 set /a wolfhp-=%playerdmg%
-if magicbarrieractive geq 1 goto magicbarrieractive1
+if %magicbarrieractive% geq 1 goto magicbarrieractive1
 set /a playerhp-=6
 if %wolfhp% lss 1 goto victory1
 if %playerhp% lss 1 goto defeat
@@ -557,19 +581,15 @@ pause
 goto game
 
 :defeat
-set input=0
 cls
 echo You died. Which sucks, because I haven't implemented a save system yet.
 echo.
-echo Start new game? (Y/N)
-echo.
-set /p input=C:\
-if "%input%" == "y" goto newgame
-if "%input%" == "n" goto startmenu
+choice /c YN /m "Start new game? (Y/N)"
+if errorlevel 2 goto startmenu
+if errorlevel 1 goto newgame
 goto defeat
 
 :fight2pre
-set input=0
 cls
 echo You come across a tent. Inside is a sleeping bandit.
 echo.
@@ -579,16 +599,14 @@ echo 1. Fight
 echo 2. Check enemy stats
 echo 3. Sneak away
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight2
-if "%input%" == "2" goto fight2stats
-if "%input%" == "3" goto game
+choice /c 123 /m "Choose an option:"
+if errorlevel 3 goto game
+if errorlevel 2 goto fight2stats
+if errorlevel 1 goto fight2
 goto fight2pre
 
 :fight2
-if %stun% geq 1 set banditdmg=0
-if %stun% lss 1 set banditdmg=7
-set input=0
+if %stun% geq 1 (set banditdmg=0) else (set banditdmg=7)
 cls
 echo You are fighting a bandit.
 echo.
@@ -613,17 +631,15 @@ echo 2. Spells
 echo 3. Wait
 echo 4. Flee (25% chance)
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight2attack
-if "%input%" == "2" goto spells2
-if "%input%" == "3" goto wait2
-if "%input%" == "4" goto flee2
+choice /c 1234 /m "Choose an option:" 
+if errorlevel 4 goto flee2
+if errorlevel 3 goto wait2
+if errorlevel 2 goto spells2
+if errorlevel 1 goto fight2attack
 goto fight2
 
 :spells2
-set input=0
 cls
-echo Spells - You have %playermana% mana.
 echo.
 echo 1. Leave
 if %lesserheal% geq 1 echo 2. Lesser heal - 25 mana - Restore 20 HP
@@ -631,12 +647,12 @@ if %spellstun% geq 1 echo 3. Stun - 50 mana - Enemies who are stunned will deal 
 if %greaterheal% geq 1 echo 4. Greater heal - 50 mana - Restore 50 HP
 if %magicbarrier% geq 1 echo 5. Magic barrier - 40 mana - Negate all damage for 1 turn, doesn't take a turn to cast
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight2
-if "%input%" == "2" goto lesserheal2
-if "%input%" == "3" goto stun2
-if "%input%" == "4" goto greaterheal2
-if "%input%" == "5" goto magicbarrier2
+choice /c 12345 /m "Choose an option:"
+if errorlevel 5 goto magicbarrier2
+if errorlevel 4 goto greaterheal2
+if errorlevel 3 goto stun2
+if errorlevel 2 goto lesserheal2
+if errorlevel 1 goto fight2
 goto spells2
 
 :lesserheal2
@@ -650,7 +666,7 @@ goto spells2
 if %playermana% lss 50 goto notenoughmana2
 if %playerhp% geq %playerhpcap% goto fullhp2
 set /a playermana-=50
-set /aplayerhp+=50
+set /a playerhp+=50
 goto spells2
 
 :fullhp2
@@ -668,7 +684,7 @@ set /a stun+=%random% %%3 +2
 goto fight2
 
 :magicbarrier2
-if %spellmagicbarrier% lss 1 goto spells2
+if %magicbarrier% lss 1 goto spells2
 if %playermana% lss 40 goto notenoughmana2
 set /a playermana-=40
 set /a magicbarrieractive+=1
@@ -720,22 +736,33 @@ set enemyspellnum=0
 set /a enemyspellnum+= %random% %%4 +1
 if %stun% geq 1 set /a stun-=1
 if "%enemyspellnum%" == "2" goto enemyspell2
-set /a playerhp-=%banditdmg%
-if magicbarrieractive geq 1 goto magicbarrieractive2
-set /a wolfhp-=%playerdmg%
+if %magicbarrieractive% geq 1 (
+	set /a magicbarrieractive-=1
+	set /a bandithp-=%playerdmg%
+) else (
+	set /a playerhp-=%banditdmg%
+	set /a bandithp-=%playerdmg%
+)
+if %bandithp% lss 1 goto victory2
+if %playerhp% lss 1 goto defeat
+goto fight2
+
+:enemyspell2
+set /a bandithp-=%playerdmg%
+if %magicbarrieractive% geq 1 goto magicbarrieractive2
+set /a playerhp-=14
 if %bandithp% lss 1 goto victory2
 if %playerhp% lss 1 goto defeat
 goto fight2
 
 :magicbarrieractive2
-if magicbarrieractive geq 1 set /a magicbarrieractive-=1
-if %bandithp% lss 1 goto victory2
-goto fight2
-
-:enemyspell2
-set /a bandithp-=%playerdmg%
-if magicbarrieractive geq 1 goto magicbarrieractive2
-set /a playerhp-=14
+if %magicbarrieractive% geq 1 (
+	set /a magicbarrieractive-=1
+	set /a bandithp-=%playerdmg%
+) else (
+	set /a playerhp-=14
+	set /a bandithp-=%playerdmg%
+)
 if %bandithp% lss 1 goto victory2
 if %playerhp% lss 1 goto defeat
 goto fight2
@@ -756,7 +783,6 @@ pause
 goto game
 
 :fight3pre
-set input=0
 cls
 echo You spot a goblin village.
 echo.
@@ -766,10 +792,10 @@ echo 1. Lure a goblin out (fight)
 echo 2. Check enemy stats
 echo 3. Sneak away
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight3
-if "%input%" == "2" goto fight3stats
-if "%input%" == "3" goto game
+choice /c 123 /m "Choose an option:"
+if errorlevel 3 goto game
+if errorlevel 2 goto fight3stats
+if errorlevel 1 goto fight3
 goto fight3pre
 
 :fight3stats
@@ -787,8 +813,7 @@ goto fight3pre
 
 :fight3
 if %stun% geq 1 set goblindmg=0
-if %stun% lss 1 set goblindmg=12
-set input=0
+if %stun% geq 1 (set goblindmg=0) else (set goblindmg=12)
 cls
 echo You are fighting a goblin.
 echo.
@@ -812,15 +837,14 @@ echo 2. Spells
 echo 3. Wait
 echo 4. Flee (25% chance)
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight3attack
-if "%input%" == "2" goto spells3
-if "%input%" == "3" goto wait3
-if "%input%" == "4" goto flee3
+choice /c 1234 /m "Choose an option:" 
+if errorlevel 4 goto flee3
+if errorlevel 3 goto wait3
+if errorlevel 2 goto spells3
+if errorlevel 1 goto fight3attack
 goto fight3
 
 :spells3
-set input=0
 cls
 echo Spells - You have %playermana% mana.
 echo.
@@ -830,12 +854,12 @@ if %spellstun% geq 1 echo 3. Stun - 50 mana - Enemies who are stunned will deal 
 if %greaterheal% geq 1 echo 4. Greater heal - 50 mana - Restore 50 HP
 if %magicbarrier% geq 1 echo 5. Magic barrier - 40 mana - Negate all damage for 1 turn, doesn't take a turn to cast
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight3
-if "%input%" == "2" goto lesserheal3
-if "%input%" == "3" goto stun3
-if "%input%" == "4" goto greaterheal3
-if "%input%" == "5" goto magicbarrier3
+choice /c 12345 /m "Choose an option:"
+if errorlevel 5 goto magicbarrier3
+if errorlevel 4 goto greaterheal3
+if errorlevel 3 goto stun3
+if errorlevel 2 goto lesserheal3
+if errorlevel 1 goto fight3
 goto spells3
 
 :lesserheal3
@@ -849,7 +873,7 @@ goto spells3
 if %playermana% lss 50 goto notenoughmana3
 if %playerhp% geq %playerhpcap% goto fullhp3
 set /a playermana-=50
-set /aplayerhp+=50
+set /a playerhp+=50
 goto spells3
 
 :notenoughmana3
@@ -874,7 +898,7 @@ set /a stun+=%random% %%3 +2
 goto fight3
 
 :magicbarrier3
-if %spellmagicbarrier% lss 1 goto spells3
+if %magicbarrier% lss 1 goto spells3
 if %playermana% lss 40 goto notenoughmana3
 set /a playermana-=40
 set /a magicbarrieractive+=1
@@ -906,22 +930,24 @@ set enemyspellnum=0
 set /a enemyspellnum+= %random% %%4 +1
 if %stun% geq 1 set /a stun-=1
 if "%enemyspellnum%" == "2" goto enemyspell3
-set /a playerhp-=%goblindmg%
-if magicbarrieractive geq 1 goto magicbarrieractive3
-set /a wolfhp-=%playerdmg%
+if %magicbarrieractive% geq 1 (
+    set /a magicbarrieractive-=1
+    set /a goblinhp-=%playerdmg%
+) else (
+    set /a playerhp-=%goblindmg%
+    set /a goblinhp-=%playerdmg%
+)
 if %goblinhp% lss 1 goto victory3
 if %playerhp% lss 1 goto defeat
 goto fight3
 
-:magicbarrieractive3
-if magicbarrieractive geq 1 set /a magicbarrieractive-=1
-if %goblinhp% lss 1 goto victory3
-goto fight3
-
 :enemyspell3
 set /a goblinhp-=%playerdmg%
-if magicbarrieractive geq 1 goto magicbarrieractive3
-set /a playerhp-=24
+if %magicbarrieractive% geq 1 (
+    set /a magicbarrieractive-=1
+) else (
+    set /a playerhp-=24
+)
 if %goblinhp% lss 1 goto victory3
 if %playerhp% lss 1 goto defeat
 goto fight3
@@ -942,7 +968,6 @@ pause
 goto game
 
 :fight4pre
-set input=0
 cls
 echo After exploring some ruins, you come across an old crypt. Probably full of skeletons?
 echo.
@@ -952,10 +977,10 @@ echo 1. Enter (fight)
 echo 2. Check enemy stats
 echo 3. Turn around and leave
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight4
-if "%input%" == "2" goto fight4stats
-if "%input%" == "3" goto game
+choice /c 123 /m "Choose an option:"
+if errorlevel 3 goto game
+if errorlevel 2 goto fight4stats
+if errorlevel 1 goto fight4
 goto fight4pre
 
 :fight4stats
@@ -972,10 +997,7 @@ pause
 goto fight4pre
 
 :fight4
-if %stun% geq 1 set skeletondmg=0
-if %stun% lss 1 set skeletondmg=16
-set input=0
-cls
+if %stun% geq 1 (set skeletondmg=0) else (set skeletondmg=16)
 echo You are fighting a skeleton.
 echo.
 if "%enemyspellnum%" == "2" echo The skeleton used Bone Throw! You lost 32 HP.
@@ -999,15 +1021,14 @@ echo 2. Spells
 echo 3. Wait
 echo 4. Flee (25% chance)
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight4attack
-if "%input%" == "2" goto spells4
-if "%input%" == "3" goto wait4
-if "%input%" == "4" goto flee4
+choice /c 1234 /m "Choose an option:" 
+if errorlevel 4 goto flee4
+if errorlevel 3 goto wait4
+if errorlevel 2 goto spells4
+if errorlevel 1 goto fight4attack
 goto fight4
 
 :spells4
-set input=0
 cls
 echo Spells - You have %playermana% mana.
 echo.
@@ -1017,12 +1038,13 @@ if %spellstun% geq 1 echo 3. Stun - 50 mana - Enemies who are stunned will deal 
 if %greaterheal% geq 1 echo 4. Greater heal - 50 mana - Restore 50 HP
 if %magicbarrier% geq 1 echo 5. Magic barrier - 40 mana - Negate all damage for 1 turn, doesn't take a turn to cast
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight4
-if "%input%" == "2" goto lesserheal4
-if "%input%" == "3" goto stun4
-if "%input%" == "4" goto greaterheal4
-if "%input%" == "5" goto magicbarrier4
+set input=
+choice /c 12345 /m "Choose an option:"
+if errorlevel 5 goto magicbarrier4
+if errorlevel 4 goto greaterheal4
+if errorlevel 3 goto stun4
+if errorlevel 2 goto lesserheal4
+if errorlevel 1 goto fight4
 goto spells4
 
 :lesserheal4
@@ -1036,7 +1058,7 @@ goto spells4
 if %playermana% lss 50 goto notenoughmana4
 if %playerhp% geq %playerhpcap% goto fullhp4
 set /a playermana-=50
-set /aplayerhp+=50
+set /a playerhp+=50
 goto spells4
 
 :fullhp4
@@ -1083,6 +1105,7 @@ goto wait4
 
 :fight4attack
 set enemyspellnum=0
+
 set /a enemyspellnum+=%random% %%4 +1
 if %stun% geq 1 set /a stun-=1
 if "%enemyspellnum%" == "2" goto enemyspell4
@@ -1094,8 +1117,17 @@ goto fight4
 
 :enemyspell4
 set /a skeletonhp-=%playerdmg%
-set /a playerhp-=32
+if %magicbarrieractive% geq 1 (
+	set /a magicbarrieractive-=1
+) else (
+	set /a playerhp-=32
+	goto checkplayerhp4
+)
 if %skeletonhp% lss 1 goto victory4
+if %playerhp% lss 1 goto defeat
+goto fight4
+
+:checkplayerhp4
 if %playerhp% lss 1 goto defeat
 goto fight4
 
@@ -1105,7 +1137,7 @@ set /a expgain+=%random% %%11 +30
 set /a gold+=%goldgain%
 set /a exp+=%expgain%
 cls
-echo You successfully defeat the goblin!
+echo You successfully defeat the skeleton!
 echo.
 echo You gained %goldgain% gold and %expgain% EXP!
 echo.
@@ -1115,7 +1147,6 @@ pause
 goto game
 
 :fight5pre
-set input=0
 cls
 echo While navigating the swamps, you hear a noise behind you. It's a giant lizard!
 echo.
@@ -1125,10 +1156,10 @@ echo 1. Fight
 echo 2. Check enemy stats
 echo 3. Run
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight5
-if "%input%" == "2" goto fight5stats
-if "%input%" == "3" goto game
+choice /c 123 /m "Choose an option:"
+if errorlevel 3 goto game
+if errorlevel 2 goto fight5stats
+if errorlevel 1 goto fight5
 goto fight5pre
 
 :fight5stats
@@ -1145,11 +1176,7 @@ pause
 goto fight5pre
 
 :fight5
-if %stun% geq 1 set giantlizarddmg=0
-if %stun% lss 1 set giantlizarddmg=35
-set input=0
-cls
-echo You are fighting a giant lizard.
+if %stun% geq 1 (set giantlizarddmg=0) else (set giantlizarddmg=35)
 echo.
 if "%enemyspellnum%" == "2" echo The giant lizard used Venomous Bite! You lost 70 HP.
 echo.
@@ -1172,15 +1199,14 @@ echo 2. Spells
 echo 3. Wait
 echo 4. Flee (25% chance)
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight5attack
-if "%input%" == "2" goto spells5
-if "%input%" == "3" goto wait5
-if "%input%" == "4" goto flee5
+choice /c 1234 /m "Choose an option:"
+if errorlevel 4 goto flee5
+if errorlevel 3 goto wait5
+if errorlevel 2 goto spells5
+if errorlevel 1 goto fight5attack
 goto fight5
 
 :spells5
-set input=0
 cls
 echo Spells - You have %playermana% mana.
 echo.
@@ -1190,12 +1216,12 @@ if %spellstun% geq 1 echo 3. Stun - 50 mana - Enemies who are stunned will deal 
 if %greaterheal% geq 1 echo 4. Greater heal - 50 mana - Restore 50 HP
 if %magicbarrier% geq 1 echo 5. Magic barrier - 40 mana - Negate all damage for 1 turn, doesn't take a turn to cast
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight5
-if "%input%" == "2" goto lesserheal5
-if "%input%" == "3" goto stun5
-if "%input%" == "4" goto greaterheal5
-if "%input%" == "5" goto magicbarrier5
+choice /c 12345 /m "Choose an option:"
+if errorlevel 5 goto magicbarrier5
+if errorlevel 4 goto greaterheal5
+if errorlevel 3 goto stun5
+if errorlevel 2 goto lesserheal5
+if errorlevel 1 goto fight5
 goto spells5
 
 :lesserheal5
@@ -1209,7 +1235,7 @@ goto spells5
 if %playermana% lss 50 goto notenoughmana5
 if %playerhp% geq %playerhpcap% goto fullhp5
 set /a playermana-=50
-set /aplayerhp+=50
+set /a playerhp+=50
 goto spells5
 
 :fullhp5
@@ -1227,7 +1253,7 @@ set /a stun+=%random% %%3 +2
 goto fight5
 
 :magicbarrier5
-if %spellmagicbarrier% lss 1 goto spells5
+if %magicbarrier% lss 1 goto spells5
 if %playermana% lss 40 goto notenoughmana5
 set /a playermana-=40
 set /a magicbarrieractive+=1
@@ -1250,10 +1276,15 @@ set enemyspellnum=0
 set /a enemyspellnum+=%random% %%4 +1
 if %stun% geq 1 set /a stun-=1
 if "%enemyspellnum%" == "2" goto enemyspell5
-set /a playerhp-=%giantlizarddmg%
-set /a giantlizardhp-=%playerdmg%
-if %playerhp% lss 1 goto defeat
+if %magicbarrieractive% geq 1 (
+	set /a magicbarrieractive-=1
+	set /a giantlizardhp-=%playerdmg%
+) else (
+	set /a playerhp-=%giantlizarddmg%
+	set /a giantlizardhp-=%playerdmg%
+)
 if %giantlizardhp% lss 1 goto victory5
+if %playerhp% lss 1 goto defeat
 goto fight5
 
 :enemyspell5
@@ -1295,7 +1326,6 @@ pause
 goto wait5
 
 :fight6pre
-set input=0
 cls
 echo After exploring a dark cave, you hear heavy breathing behind you. Cave troll!
 echo.
@@ -1305,10 +1335,10 @@ echo 1. Fight
 echo 2. Check enemy stats
 echo 3. Run
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight6
-if "%input%" == "2" goto fight6stats
-if "%input%" == "3" goto game
+choice /c 123 /m "Choose an option:"
+if errorlevel 3 goto game
+if errorlevel 2 goto fight6stats
+if errorlevel 1 goto fight6
 goto fight6pre
 
 :fight6stats
@@ -1321,16 +1351,14 @@ echo Gold drop: 60-70
 echo EXP gain: 84-92
 echo -----------------
 echo.
-pause
-goto fight6pre
-
+if %stun% lss 1 set trolldmg=50 & goto fight6
+cls
+if %stun% geq 1 (set trolldmg=0) else (set trolldmg=50)
 :fight6
 if %stun% geq 1 set trolldmg=0
 if %stun% lss 1 set trolldmg=50
-set input=0
 cls
-echo You are fighting a cave troll.
-echo.
+if %stun% geq 1 (set trolldmg=0) else (set trolldmg=50)
 if "%enemyspellnum%" == "2" echo The cave troll used Bash! You lost 100 HP.
 echo.
 echo Your health: %playerhp%
@@ -1352,15 +1380,14 @@ echo 2. Spells
 echo 3. Wait
 echo 4. Flee (25% chance)
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight6attack
-if "%input%" == "2" goto spells6
-if "%input%" == "3" goto wait6
-if "%input%" == "4" goto flee6
+choice /c 1234 /m "Choose an option:"
+if errorlevel 4 goto flee6
+if errorlevel 3 goto wait6
+if errorlevel 2 goto spells6
+if errorlevel 1 goto fight6attack
 goto fight6
 
 :spells6
-set input=0
 cls
 echo Spells - You have %playermana% mana.
 echo.
@@ -1370,26 +1397,19 @@ if %spellstun% geq 1 echo 3. Stun - 50 mana - Enemies who are stunned will deal 
 if %greaterheal% geq 1 echo 4. Greater heal - 50 mana - Restore 50 HP
 if %magicbarrier% geq 1 echo 5. Magic barrier - 40 mana - Negate all damage for 1 turn, doesn't take a turn to cast
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight6
-if "%input%" == "2" goto lesserheal6
-if "%input%" == "3" goto stun6
-if "%input%" == "4" goto greaterheal6
-if "%input%" == "5" goto magicbarrier6
-goto spells6
-
-:lesserheal6
-if %playermana% lss 25 goto notenoughmana6
-if %playerhp% geq %playerhpcap% goto fullhp6
-set /a playermana-=25
-set /a playerhp+=20
+choice /c 12345 /m "Choose an option:"
+if errorlevel 5 goto magicbarrier6
+if errorlevel 4 goto greaterheal6
+if errorlevel 3 goto stun6
+if errorlevel 2 goto lesserheal6
+if errorlevel 1 goto fight6
 goto spells6
 
 :greaterheal6
 if %playermana% lss 50 goto notenoughmana6
 if %playerhp% geq %playerhpcap% goto fullhp6
 set /a playermana-=50
-set /aplayerhp+=50
+set /a playerhp+=50
 goto spells6
 
 :fullhp6
@@ -1407,7 +1427,7 @@ set /a stun+=%random% %%3 +2
 goto fight6
 
 :magicbarrier6
-if %spellmagicbarrier% lss 1 goto spells6
+if %magicbarrier% lss 1 goto spells6
 if %playermana% lss 40 goto notenoughmana6
 set /a playermana-=40
 set /a magicbarrieractive+=1
@@ -1475,7 +1495,6 @@ pause
 goto wait6
 
 :fight7pre
-set input=0
 cls
 echo After coming across a treasure horde in a cave, you notice that you are doing a staring contest with a cave dragon.
 echo.
@@ -1485,10 +1504,10 @@ echo 1. Fight
 echo 2. Check enemy stats
 echo 3. Run
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight7
-if "%input%" == "2" goto fight7stats
-if "%input%" == "3" goto game
+choice /c 123 /m "Choose an option:"
+if errorlevel 3 goto game
+if errorlevel 2 goto fight7stats
+if errorlevel 1 goto fight7
 goto fight7pre
 
 :fight7stats
@@ -1507,11 +1526,8 @@ goto fight7pre
 :fight7
 if %stun% geq 1 set cavedragondmg=0
 if %stun% lss 1 set cavedragondmg=65
-set input=0
 cls
 echo You are fighting a cave dragon.
-echo.
-if "%enemyspellnum%" == "2" echo The cave dragon used Fire Breathe! You lost 130 HP.
 echo.
 echo Your health: %playerhp%
 echo.
@@ -1532,15 +1548,14 @@ echo 2. Spells
 echo 3. Wait
 echo 4. Flee (25% chance)
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight7attack
-if "%input%" == "2" goto spells7
-if "%input%" == "3" goto wait7
-if "%input%" == "4" goto flee7
+choice /c 1234 /m "Choose an option:"
+if errorlevel 4 goto flee7
+if errorlevel 3 goto wait7
+if errorlevel 2 goto spells7
+if errorlevel 1 goto fight7attack
 goto fight7
 
 :spells7
-set input=0
 cls
 echo Spells - You have %playermana% mana.
 echo.
@@ -1550,12 +1565,12 @@ if %spellstun% geq 1 echo 3. Stun - 50 mana - Enemies who are stunned will deal 
 if %greaterheal% geq 1 echo 4. Greater heal - 50 mana - Restore 50 HP
 if %magicbarrier% geq 1 echo 5. Magic barrier - 40 mana - Negate all damage for 1 turn, doesn't take a turn to cast
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight7
-if "%input%" == "2" goto lesserheal7
-if "%input%" == "3" goto stun7
-if "%input%" == "4" goto greaterheal7
-if "%input%" == "5" goto magicbarrier7
+choice /c 12345 /m "Choose an option:"
+if errorlevel 5 goto magicbarrier7
+if errorlevel 4 goto greaterheal7
+if errorlevel 3 goto stun7
+if errorlevel 2 goto lesserheal7
+if errorlevel 1 goto fight7
 goto spells7
 
 :lesserheal7
@@ -1569,7 +1584,7 @@ goto spells7
 if %playermana% lss 50 goto notenoughmana7
 if %playerhp% geq %playerhpcap% goto fullhp7
 set /a playermana-=50
-set /aplayerhp+=50
+set /a playerhp+=50
 goto spells7
 
 :fullhp7
@@ -1587,7 +1602,7 @@ set /a stun+=%random% %%3 +2
 goto fight7
 
 :magicbarrier7
-if %spellmagicbarrier% lss 1 goto spells7
+if %magicbarrier% lss 1 goto spells7
 if %playermana% lss 40 goto notenoughmana7
 set /a playermana-=40
 set /a magicbarrieractive+=1
@@ -1645,7 +1660,7 @@ if "%fleenum%" == "1" goto fleefail7
 if "%fleenum%" == "2" goto fleesuccess
 if "%fleenum%" == "3" goto fleefail7
 if "%fleenum%" == "4" goto fleefail7
-goto flee6
+goto flee7
 
 :fleefail7
 cls
@@ -1655,7 +1670,6 @@ pause
 goto wait7
 
 :fight8pre
-set input=0
 cls
 echo You come across a black obelisk in a dungeon. It is engraved with glowing red runes.
 echo.
@@ -1667,10 +1681,10 @@ echo 1. Attack
 echo 2. Check enemy stats
 echo 3. Run
 echo.
-set /p input=C:/
-if "%input%" == "1" goto fight8
-if "%input%" == "2" goto fight8stats
-if "%input%" == "3" goto game
+choice /c 123 /m "Choose an option:"
+if errorlevel 3 goto game
+if errorlevel 2 goto fight8stats
+if errorlevel 1 goto fight8
 goto fight8pre
 
 :fight8stats
@@ -1687,7 +1701,6 @@ pause
 goto fight8pre
 
 :fight8
-set input=0
 cls
 echo You are attempting to tip over the obelisk.
 echo.
@@ -1701,8 +1714,7 @@ echo.
 echo Enemy attack: %obeliskdmg%
 echo.
 if %stun% geq 1 echo Enemy is stunned for %stun% turn(s)
-if %magicbarrier% geq 1 echo Magic barrier is active for %magicbarrieractive% turn(s)
-echo.
+if %magicbarrieractive% geq 1 echo Magic barrier is active for %magicbarrieractive% turn(s)
 echo What is your next move?
 echo.
 echo 1. Attack
@@ -1710,21 +1722,20 @@ echo 2. Spells
 echo 3. Wait
 echo 4. Flee
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight8attack
-if "%input%" == "2" goto spells8
-if "%input%" == "3" goto fight8
-if "%input%" == "4" goto flee8
+choice /c 1234 /m "Choose an option:"
+if errorlevel 4 goto flee8
+if errorlevel 3 goto game
+if errorlevel 2 goto spells8
+if errorlevel 1 goto fight8attack
 goto fight8
 
 :flee8
 cls
 echo You decide it probably isn't a good idea and leave.
-pause.
+pause
 goto game
 
 :spells8
-set input=0
 cls
 echo Spells - You have %playermana% mana.
 echo.
@@ -1734,12 +1745,12 @@ if %spellstun% geq 1 echo 3. Stun - 50 mana - Enemies who are stunned will deal 
 if %greaterheal% geq 1 echo 4. Greater heal - 50 mana - Restore 50 HP
 if %magicbarrier% geq 1 echo 5. Magic barrier - 40 mana - Negate all damage for 1 turn, doesn't take a turn to cast
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight8
-if "%input%" == "2" goto lesserheal8
-if "%input%" == "3" goto stun8
-if "%input%" == "4" goto greaterheal8
-if "%input%" == "5" goto magicbarrier8
+choice /c 12345 /m "Choose an option:"
+if errorlevel 5 goto magicbarrier8
+if errorlevel 4 goto greaterheal8
+if errorlevel 3 goto stun8
+if errorlevel 2 goto lesserheal8
+if errorlevel 1 goto fight8
 goto spells8
 
 :lesserheal8
@@ -1753,7 +1764,7 @@ goto spells8
 if %playermana% lss 50 goto notenoughmana8
 if %playerhp% geq %playerhpcap% goto fullhp8
 set /a playermana-=50
-set /aplayerhp+=50
+set /a playerhp+=50
 goto spells8
 
 :fullhp8
@@ -1771,11 +1782,11 @@ set /a stun+=%random% %%3 +2
 goto fight8
 
 :magicbarrier8
-if %spellmagicbarrier% lss 1 goto spells8
+if %magicbarrier% lss 1 goto spells8
 if %playermana% lss 40 goto notenoughmana8
 set /a playermana-=40
 set /a magicbarrieractive+=1
-goto spells8
+goto fight8
 
 :notenoughmana8
 cls
@@ -1797,7 +1808,7 @@ cls
 echo.
 echo You managed to tip over the obelisk.
 echo.
-echo It shatters spectacularily as it hits the ground. You see dark mist exit the obelisk.
+echo It shatters spectacularly as it hits the ground. You see dark mist exit the obelisk.
 echo.
 echo You made a mistake. It was inevitable.
 echo.
@@ -1807,22 +1818,17 @@ pause
 goto fight9
 
 :fight9
-if %stun% geq 1 set azerothdmg=0
-if %stun% lss 1 set azerothdmg=75
-set input=0
+if %stun% geq 1 set abaddondmg=0 else set abaddondmg=75
 cls
 echo You are fighting Abaddon. You feel like this isn't going to end well.
 echo.
-if "%enemyspellnum%" == "2" echo Abaddon used Obliterate! You lost 150 HP.
-echo.
 echo Your health: %playerhp%
-echo.
 echo Your attack: %playerdmg%
 echo.
 echo.
-echo Enemy health: %azerothhp%
+echo Enemy health: %abaddonhp%
 echo.
-echo Enemy attack: %azerothdmg%
+echo Enemy attack: %abaddondmg%
 echo.
 if %stun% geq 1 echo Enemy is stunned for %stun% turn(s)
 if %magicbarrieractive% geq 1 echo Magic barrier is active for %magicbarrieractive% turn(s)
@@ -1834,15 +1840,14 @@ echo 2. Spells
 echo 3. Wait
 echo 4. Flee
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight9attack
-if "%input%" == "2" goto spells9
-if "%input%" == "3" goto wait9
-if "%input%" == "4" goto flee9
+choice /c 1234 /m "Choose an option:" 
+if errorlevel 4 goto flee9
+if errorlevel 3 goto wait9
+if errorlevel 2 goto spells9
+if errorlevel 1 goto fight9attack
 goto fight9
 
 :spells9
-set input=0
 cls
 echo Spells - You have %playermana% mana.
 echo.
@@ -1852,12 +1857,12 @@ if %spellstun% geq 1 echo 3. Stun - 50 mana - Enemies who are stunned will deal 
 if %greaterheal% geq 1 echo 4. Greater heal - 50 mana - Restore 50 HP
 if %magicbarrier% geq 1 echo 5. Magic barrier - 40 mana - Negate all damage for 1 turn, doesn't take a turn to cast
 echo.
-set /p input=C:\
-if "%input%" == "1" goto fight9
-if "%input%" == "2" goto lesserheal9
-if "%input%" == "3" goto stun9
-if "%input%" == "4" goto greaterheal9
-if "%input%" == "5" goto magicbarrier9
+choice /c 12345 /m "Choose an option:"
+if errorlevel 5 goto magicbarrier9
+if errorlevel 4 goto greaterheal9
+if errorlevel 3 goto stun9
+if errorlevel 2 goto lesserheal9
+if errorlevel 1 goto fight9
 goto spells9
 
 :lesserheal9
@@ -1871,11 +1876,10 @@ goto spells9
 if %playermana% lss 50 goto notenoughmana9
 if %playerhp% geq %playerhpcap% goto fullhp9
 set /a playermana-=50
-set /aplayerhp+=50
-goto spells9
+set /a playerhp+=50
+pause
 
 :fullhp9
-cls
 echo Your health is already at full.
 echo.
 pause
@@ -1887,12 +1891,16 @@ if %playermana% lss 50 goto notenoughmana9
 set /a playermana-=50
 set /a stun+=%random% %%3 +2
 goto fight9
-
+set /a playermana-=50
+set /a stun+=%random% %%3 +2
+goto fight9
 :magicbarrier9
-if %spellmagicbarrier% lss 1 goto spells9
+cls
+if %magicbarrier% lss 1 goto spells9
 if %playermana% lss 40 goto notenoughmana9
 set /a playermana-=40
 set /a magicbarrieractive+=1
+goto spells9
 goto spells9
 
 :notenoughmana9
@@ -1903,57 +1911,26 @@ pause
 goto spells9
 
 :wait9
-set /a playerhp-=%azerothdmg%
+set /a playerhp-=%abaddondmg%
 if %playerhp% lss 1 goto defeat
 goto fight9
 
 :fight9attack
-set enemyspellnum=0
-set /a enemyspellnum+=%random% %%4 +1
 if %stun% geq 1 set /a stun-=1
 if "%enemyspellnum%" == "2" goto enemyspell9
-set /a playerhp-=%azerothdmg%
-set /a azerothhp-=%playerdmg%
-if %playerhp% lss 1 goto defeat
-if %azerothhp% lss 1 goto azerothwin
-goto fight9
-
-:enemyspell9
-set /a azerothhp-=%playerdmg%
-set /a playerhp-=150
-if %azerothhp% lss 1 goto victory9
+if %magicbarrieractive% geq 1 goto magicbarrieractive9
+set /a playerhp-=%abaddondmg%
+set /a abaddonhp-=%playerdmg%
+if %abaddonhp% lss 1 goto victory9
 if %playerhp% lss 1 goto defeat
 goto fight9
 
-:azerothwin
-set input=0
-cls
-echo.
-echo With one final strike from your sword, you smite down Abaddon, the demon king.
-echo.
-echo Is this it? Is this where your adventure ends?
-echo.
-set /p input=C:/
-if "%input%" == "yes" exit
-if "%input%" == "no" goto victory9
-if "%input%" == "y" exit
-if "%input%" == "n" goto victory9
-goto azerothwin
-
-:flee9
-set fleenum=0
-set /a fleenum+=%random% %%4 +1
-if "%fleenum%" == "1" goto fleefail9
-if "%fleenum%" == "2" goto fleefail9
-if "%fleenum%" == "3" goto fleefail9
-if "%fleenum%" == "4" goto fleefail9
-goto flee6
-
-:fleefail9
-cls
-echo You cannot run from Abaddon.
-echo.
-pause
+:magicbarrieractive9
+set /a magicbarrieractive-=1
+set /a abaddonhp-=%playerdmg%
+set /a abaddonhp-=%playerdmg%
+if %abaddonhp% lss 1 goto victory9
+if %playerhp% lss 1 goto defeat
 goto fight9
 
 :victory9
@@ -1962,24 +1939,29 @@ set /a expgain+=%random% %%401 +800
 set /a gold+=%goldgain%
 set /a exp+=%expgain%
 cls
-echo You successfully defeated Azeroth!
+echo You successfully defeated Abaddon!
 echo.
 echo You gained %goldgain% gold and %expgain% EXP!
 echo.
-echo Don't forget to rest after a fight.
+echo With one final strike from your sword, you smite down Abaddon, the demon king.
 echo.
 pause
 goto ending
 
+:flee9
+cls
+echo You cannot run from Abaddon.
+echo.
+pause
+goto fight9
+
 :ending
-set input=0
 cls
 echo This is where your adventure ends, hero.
 echo.
 echo Would you like to continue playing? Y/N
 echo.
-set /p input=C:\
-if "%input%" == "y" goto game
-if "%input%" == "Y" goto game
-if "%input%" == "n" goto startmenu
-if "%input%" == "N" goto startmenu
+choice /c YN /m "Choose an option:"
+if errorlevel 2 goto startmenu
+if errorlevel 1 goto game
+goto ending
