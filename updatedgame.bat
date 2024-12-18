@@ -7,6 +7,42 @@ call :initPlayer
 call :initSpells
 goto :startmenu
 
+rem ==================== Title Menu ============================
+:startmenu
+cls
+echo.
+echo Welcome to the game!
+echo.
+echo What do you want to do?
+echo.
+echo 1. Start new game
+echo 2. Credits
+echo 3. Quit
+echo.
+choice /c 123 /m "Choose an option:"
+
+if errorlevel 3 goto exit
+if errorlevel 2 goto credits
+if errorlevel 1 goto newgame
+
+:exit
+exit
+
+:credits
+cls
+echo.
+echo This game was made by Nupsu.
+echo.
+echo Started the project sometime in March 2018. Picked it back up December 2024.
+echo.
+pause
+goto startmenu
+
+:newgame
+call :initPlayer
+call :initSpells
+goto game
+
 rem ==================== Player Initialization ================
 :initPlayer
 rem Set initial player statistics
@@ -149,7 +185,12 @@ rem ==================== Combat System ======================
 cls
 call :showCombatStatus
 rem Display combat options to player
-choice /c 1234 /m "1.Attack 2.Spells 3.Wait 4.Flee"
+choice /c 1234 /m "Choose an option:"
+echo.
+echo 1) Attack
+echo 2) Cast spell
+echo 3) Wait
+echo 4) Flee
 if errorlevel 4 call :tryFlee
 if errorlevel 3 call :wait
 if errorlevel 2 call :spellMenu
@@ -188,21 +229,44 @@ goto :eof
 rem ==================== Spell Casting ====================
 :castSpell
 rem Route to appropriate spell based on selection
-if not "%~1" geq "1" if not "%~1" leq "4" (
-    echo Invalid spell selection
+set /a _spellNum="%~1" 2>nul
+if %errorlevel% neq 0 (
+    echo Invalid input - must be a number
     goto :eof
 )
-if "%~1"=="1" if %playermana% geq 25 (call :healSpell 25 20 lesser) else (echo Not enough mana)
-if "%~1"=="2" if %playermana% geq 50 (call :stunSpell) else (echo Not enough mana)
-if "%~1"=="3" if %playermana% geq 50 (call :healSpell 50 50 greater) else (echo Not enough mana)
-if "%~1"=="4" if %playermana% geq 40 (call :barrierSpell) else (echo Not enough mana)
+if %_spellNum% lss 1 (
+    echo Invalid spell selection - must be 1-4
+    goto :eof
+)
+if %_spellNum% gtr 4 (
+    echo Invalid spell selection - must be 1-4
+    goto :eof
+)
+if "%~1"=="1" if %playermana% geq 25 (call :healSpell 25 20 lesser) else (echo Not enough mana - needs 25 & goto :eof)
+if "%~1"=="2" if %playermana% geq 50 (call :stunSpell) else (echo Not enough mana - needs 50 & goto :eof)
+if "%~1"=="3" if %playermana% geq 50 (call :healSpell 50 50 greater) else (echo Not enough mana - needs 50 & goto :eof)
+if "%~1"=="4" if %playermana% geq 40 (call :barrierSpell) else (echo Not enough mana - needs 40 & goto :eof)
 goto :eof
 
 :healSpell
 rem Parameters: %1=mana cost, %2=heal amount, %3=spell type
-if %playermana% lss %~1 echo Not enough mana. & goto :eof
-if %playerhp% geq %playerhpcap% echo HP already full. & goto :eof
-set /a playermana-=%~1
-set /a playerhp+=%~2
-if %playerhp% gtr %playerhpcap% set playerhp=%playerhpcap%
+if %playermana% lss %~1 (echo Not enough mana for %~3 heal. & goto :eof)
+if %playerhp% geq %playerhpcap% (echo HP already full. & goto :eof)
+set /a "healed=%~2"
+if %playerhp% + %healed% gtr %playerhpcap% set /a "healed=%playerhpcap%-%playerhp%"
+set /a "playermana-=%~1"
+set /a "playerhp+=healed"
+echo Healed for %healed% HP.
+goto :eof
+
+:stunSpell
+if %playermana% lss 50 (echo Not enough mana for stun. & goto :eof)
+set /a "playermana-=50"
+set /a "stun+=%random% %%3 +2"
+goto :eof
+
+:barrierSpell
+if %playermana% lss 40 (echo Not enough mana for barrier. & goto :eof)
+set /a "playermana-=40"
+set /a "magicbarrieractive+=1"
 goto :eof
