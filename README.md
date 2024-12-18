@@ -1,6 +1,8 @@
 # BatchRPG
 Just trying some stuff out, first time trying to code pretty much anything.
 
+Holy fuck, my code is absolute trash. I'm just gonna start over from scratch. I left "oldgame.bat" in so everyone can see what NOT to do.
+
 
 TO-DO LIST
 -----------

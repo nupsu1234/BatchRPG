@@ -36,6 +36,7 @@ goto startmenu
 set shortsword=0
 set ringofhealth=0
 set ringofmana=0
+set lesserheal=1
 set spellstun=0
 set greaterheal=0
 set magicbarrier=0
@@ -53,31 +54,11 @@ set ring=0
 set expcap=100
 set goldgain=0
 set expgain=0
-set stun=0
-set enemyspellnum=0
-set wolfhp=65
-set wolfdmg=3
-set bandithp=100
-set banditdmg=10
-set goblinhp=120
-set goblindmg=16
-set skeletonhp=150
-set skeletondmg=20
-set giantlizardhp=200
-set giantlizarddmg=35
-set trollhp=250
-set trolldmg=50
-set cavedragonhp=300
-set cavedragondmg=65
-set obeliskhp=500
-set obeliskdmg=0
-set abaddonhp=1000
-set abaddondmg=75
+if %exp% geq %expcap% goto levelup
 goto game
 
 :game
-set expuntil=%expcap%
-set /a expuntil-=%exp%
+set /a expuntil=%expcap%-%exp%
 set wolfhp=65
 set wolfdmg=3
 set bandithp=100
@@ -101,7 +82,6 @@ set expgain=0
 set playerdmgincrease=0
 set playerhpcapincrease=0
 set playermanacapincrease=0
-set lesserheal=1
 set stun=0
 set enemyspellnum=0
 if %exp% geq %expcap% goto levelup
@@ -344,8 +324,8 @@ echo Your HP has been fully restored!
 echo Your mana has been fully restored!
 echo.
 pause
-set playerhp=%playerhpcap%
-set playermana=%playermanacap%
+set /a playerhp=%playerhpcap%
+set /a playermana=%playermanacap%
 goto game
 
 :mystats
@@ -374,15 +354,7 @@ cls
 echo You rolled a %fightnum%! What will it be?
 echo.
 pause
-if "%fightnum%" == "1" goto fight1pre
-if "%fightnum%" == "2" goto fight2pre
-if "%fightnum%" == "3" goto fight3pre
-if "%fightnum%" == "4" goto fight4pre
-if "%fightnum%" == "5" goto fight5pre
-if "%fightnum%" == "6" goto fight6pre
-if "%fightnum%" == "7" goto fight7pre
-if "%fightnum%" == "8" goto fight8pre
-goto prefight
+goto fight%fightnum%pre
 
 :fight1pre
 cls
@@ -453,55 +425,54 @@ goto fight1
 
 :spells1
 cls
-echo Spells - You have %playermana% mana.
+echo Spells - You have %playermana% mana and %playerhp% HP.
 echo.
+echo 1. Return to fight
 if %lesserheal% geq 1 echo 2. Lesser heal - 25 mana - Restore 20 HP
 if %spellstun% geq 1 echo 3. Stun - 50 mana - Enemies who are stunned will deal no damage
 if %greaterheal% geq 1 echo 4. Greater heal - 50 mana - Restore 50 HP
-if %magicbarrier% geq 1 echo 5. Magic barrier - 40 mana - Negate all damage for 1 turn, doesn't take a turn to cast
+if %magicbarrier% geq 1 echo 5. Magic barrier - 40 mana - Negate damage for 1 turn
 echo.
-choice /c 12345 /m "Choose an option:"
+choice /c 12345 /n /m "Choose spell:"
 
-if errorlevel 5 goto magicbarrier1
-if errorlevel 4 goto greaterheal1
-if errorlevel 3 goto stun1
-if errorlevel 2 goto lesserheal1
-if errorlevel 1 goto fight1
-goto spells1
+if errorlevel 5 goto :magicbarrier1
+if errorlevel 4 goto :greaterheal1 
+if errorlevel 3 goto :stun1
+if errorlevel 2 goto :lesserheal1
+if errorlevel 1 goto :fight1
 
 :lesserheal1
-if %playermana% lss 25 goto notenoughmana1
-if %playerhp% geq %playerhpcap% goto fullhp1
-set /a playermana-=25
-set /a playerhp+=20
-goto spells1
+if %lesserheal% lss 1 goto :spells1
+if %playermana% lss 25 goto :notenoughmana1
+if %playerhp% geq %playerhpcap% goto :fullhp1
+set /a playermana-=25, playerhp+=20
+goto :spells1
 
 :greaterheal1
-if %playermana% lss 50 goto notenoughmana1
-if %playerhp% geq %playerhpcap% goto fullhp1
+if %greaterheal% lss 1 goto :spells1
+if %playermana% lss 50 goto :notenoughmana1
+if %playerhp% geq %playerhpcap% goto :fullhp1
+set /a playermana-=50, playerhp+=50
+goto :spells1
+
+:stun1
+if %spellstun% lss 1 goto :spells1
+if %playermana% lss 50 goto :notenoughmana1
 set /a playermana-=50
-set /a playerhp+=50
-goto spells1
+set /a stun+=%random% %%3 +2
+goto :fight1
+
+:magicbarrier1
+if %magicbarrier% lss 1 goto :spells1
+if %playermana% lss 40 goto :notenoughmana1
+set /a playermana-=40, magicbarrieractive+=1
+goto :spells1
 
 :fullhp1
 cls
 echo Your health is already at full.
 echo.
 pause
-goto spells1
-
-:stun1
-if %spellstun% lss 1 goto spells1
-if %playermana% lss 50 goto notenoughmana1
-set /a playermana-=50
-set /a stun+=%random% %%3 +2
-goto fight1
-
-:magicbarrier1
-if %magicbarrier% lss 1 goto spells1
-if %playermana% lss 40 goto notenoughmana1
-set /a playermana-=40
-set /a magicbarrieractive+=1
 goto spells1
 
 :notenoughmana1
@@ -512,13 +483,9 @@ pause
 goto spells1
 
 :flee1
-set fleenum=0
-set /a fleenum+=%random% %%4 +1
-if "%fleenum%" == "1" goto fleefail1
-if "%fleenum%" == "2" goto fleesuccess
-if "%fleenum%" == "3" goto fleefail1
-if "%fleenum%" == "4" goto fleefail1
-goto flee1
+set /a fleenum=%random% %%4 +1
+if %fleenum%==2 goto fleesuccess
+goto fleefail1
 
 :fleesuccess
 cls
@@ -535,32 +502,33 @@ pause
 goto wait1
 
 :wait1
-set /a playerhp-=%wolfdmg%
+if %magicbarrieractive% geq 1 (
+	set /a magicbarrieractive-=1
+) else (
+	set /a playerhp-=%wolfdmg%
+)
 if %playerhp% lss 1 goto defeat
 goto fight1
 
 :fight1attack
-if %magicbarrieractive% geq 1 goto magicbarrieractive1
-set /a playerhp-=%wolfdmg%
-set /a wolfhp-=%playerdmg%
-goto fight1
-
-:magicbarrieractive1
-set /a magicbarrieractive-=1
-set /a wolfhp-=%playerdmg%
-goto fight1
+if %magicbarrieractive% geq 1 (
+	set /a magicbarrieractive-=1
+	set /a wolfhp-=%playerdmg%
 ) else (
 	set /a playerhp-=%wolfdmg%
+	set /a wolfhp-=%playerdmg%
+)
 if %wolfhp% lss 1 goto victory1
-if %playerhp% lss 1 goto defeat
-goto fight1
 if %playerhp% lss 1 goto defeat
 goto fight1
 
 :enemyspell1
 set /a wolfhp-=%playerdmg%
-if %magicbarrieractive% geq 1 goto magicbarrieractive1
-set /a playerhp-=6
+if %magicbarrieractive% geq 1 (
+	set /a magicbarrieractive-=1
+) else (
+	set /a playerhp-=6
+)
 if %wolfhp% lss 1 goto victory1
 if %playerhp% lss 1 goto defeat
 goto fight1
